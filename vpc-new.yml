@@ -1,0 +1,619 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Template to create new VPC, Subnets, Route Tables, Internet Gateway, Network ACL, Virtual private gateway,TransitGateway & Routetables configuration similar to the configuration of the existing beachhead VPC.'
+# This template will create:
+# Create VPC with 3 Subnets - One External or public and two Internal
+# An Internet gateway with route in external subnet
+# 3 Route tables , one for each subnet
+# One NACL associated with all 3 subnets allowing all traffic. Traffic filtering will be implemented at Security Group level
+# One Virtual private Gateway for Direct Connect from Megaport
+# One transit Gateway and 5 Transit Gateway route tables
+# One transit gateway attachment to  vpc and association with transit gateway Route table
+
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: '172.25.242.0/24'
+      EnableDnsSupport: true
+      EnableDnsHostnames: false
+      InstanceTenancy: default
+      Tags:
+      - Key: Name
+        Value: 'VPC01-NETWORK'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'      
+
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+      - Key: Name
+        Value: 'VPC01-NETWORK-IG'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  VPCGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  ExternalSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      CidrBlock: '172.25.242.0/28'
+      MapPublicIpOnLaunch: false
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWS-ACC-VPC01-FW-External'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  InternalSubnetA:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      CidrBlock: '172.25.242.32/28'
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWS-ACC-VPC01-FW-Internal'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  InternalSubnetB:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      CidrBlock: '172.25.161.48/28'
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWS-ACC-VPC01-FW-TRANSIT'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'
+
+  InternalSubnetC:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      CidrBlock: '172.25.161.16/28'
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWS-ACC-VPC01-FW-HA'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  RouteTableAInternal:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'VPC01-NETWORK-INTRT-A'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  RouteTableBInternal:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'VPC01-NETWORK-INTRT-B'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  RouteTableCInternal:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'VPC01-NETWORK-INTRT-C'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  RouteTableExternal:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'VPC01-NETWORK-EXTRT'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  RouteTableAssociationAPrivate:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref InternalSubnetA
+      RouteTableId: !Ref RouteTableAInternal
+
+  RouteTableAssociationBPrivate:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref InternalSubnetB
+      RouteTableId: !Ref RouteTableBInternal
+
+  RouteTableAssociationCPrivate:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref InternalSubnetC
+      RouteTableId: !Ref RouteTableCInternal
+
+  RouteTableAssociationExternal:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref ExternalSubnet
+      RouteTableId: !Ref RouteTableExternal
+
+  RouteTableExternalInternetRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTableExternal
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+
+  NetworkAclPrivandPub:
+    Type: 'AWS::EC2::NetworkAcl'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'VPC01-NETWORK-NACL-ExIn'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  SubnetNAclAssociationExternal:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref ExternalSubnet
+      NetworkAclId: !Ref NetworkAclPrivandPub
+
+  SubnetNAclAssociationInternalA:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref InternalSubnetA
+      NetworkAclId: !Ref NetworkAclPrivandPub
+
+  SubnetNAclAssociationInternalB:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref InternalSubnetB
+      NetworkAclId: !Ref NetworkAclPrivandPub
+
+  SubnetNAclAssociationInternalC:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref InternalSubnetC
+      NetworkAclId: !Ref NetworkAclPrivandPub
+
+  NetworkAclEntryInPublicAllowAll:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref NetworkAclPrivandPub
+      RuleNumber: 100
+      Protocol: -1
+      RuleAction: allow
+      Egress: false
+      CidrBlock: '0.0.0.0/0'
+
+  NetworkAclEntryOutPublicAllowAll:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref NetworkAclPrivandPub
+      RuleNumber: 100
+      Protocol: -1
+      RuleAction: allow
+      Egress: true
+      CidrBlock: '0.0.0.0/0'
+
+  SecurityGroupEth0:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+        GroupDescription: Liquid IT Palo Alto firewall mgmt
+        GroupName: sg-PA-Mgmt
+        VpcId:
+          Ref: VPC
+        SecurityGroupIngress:
+        - IpProtocol: "-1"
+          CidrIp: 180.235.104.5/32
+        - IpProtocol: "-1"
+          CidrIp: 180.235.104.21/32
+        - IpProtocol: "-1"
+          CidrIp: 13.236.127.21/32    
+        SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+
+  SecurityGroupEth1:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+        GroupDescription: Liquid IT Palo Alto firewall HA2
+        GroupName: sg-PA-HA2
+        VpcId:
+          Ref: VPC
+        SecurityGroupIngress:
+        - IpProtocol: "-1"
+          CidrIp: 172.25.242.16/28
+        SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 172.25.242.16/28
+
+  SecurityGroupEth2:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+        GroupDescription: Liquid IT Palo Alto firewall Eth1/2
+        GroupName: sg-PA-Untrust
+        VpcId:
+          Ref: VPC
+        SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+
+  SecurityGroupEth3:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+        GroupDescription: Liquid IT Palo Alto firewall Eth1/3
+        GroupName: sg-PA-Trust
+        VpcId:
+          Ref: VPC
+        SecurityGroupIngress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+        SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+
+  Eth0ENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+        Tags:
+        - Key: Name
+          Value: Mgmt
+        SourceDestCheck: 'true'
+        GroupSet: 
+        - !Ref SecurityGroupEth0
+        SubnetId: !Ref ExternalSubnet
+
+  Eth1ENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+        Tags:
+        - Key: Name
+          Value: E1
+        SourceDestCheck: 'true'
+        GroupSet: 
+        - !Ref SecurityGroupEth1
+        SubnetId: !Ref InternalSubnetC
+
+  Eth2ENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+        Tags:
+        - Key: Name
+          Value: E2
+        SourceDestCheck: 'true'
+        GroupSet: 
+        - !Ref SecurityGroupEth2
+        SubnetId: !Ref InternalSubnetA
+
+  Eth3ENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+        Tags:
+        - Key: Name
+          Value: E2
+        SourceDestCheck: 'true'
+        GroupSet: 
+        - !Ref SecurityGroupEth3
+        SubnetId: !Ref InternalSubnetB
+
+  VpnVPG:
+    Type: AWS::EC2::VPNGateway
+    Properties:
+      Type: ipsec.1
+      Tags:
+      - Key: Name
+        Value: 'VPC01-NETWORK-VPG'
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  VGWGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      VpnGatewayId: !Ref VpnVPG
+
+  SSTransitGateway:
+    Type: 'AWS::EC2::TransitGateway'
+    Properties:
+      Description: "Transit Gateway in SharedServices Account"
+      AutoAcceptSharedAttachments: 'disable'
+      DefaultRouteTableAssociation: 'disable'
+      DefaultRouteTablePropagation: 'disable'
+      DnsSupport: 'disable'
+      VpnEcmpSupport: 'disable'
+      Tags:
+      - Key: Name
+        Value: VPC01-NETWORK-VTG1001
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  TgwAttachment:
+    Type: AWS::EC2::TransitGatewayAttachment
+    Properties:
+      SubnetIds:
+      - !Ref InternalSubnetB
+      TransitGatewayId: !Ref SSTransitGateway
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: VPC01-NETWORK-TGA
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  IdsProdTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: VPC01-IDS-PROD-TGA-RT
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  TgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: VPC01-RT
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  EmrpocTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: VPC01-EMRPOC-VFWTRASNET-RT
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  NfLoadTestTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: VPC01-NF-VFWTRASNET-RT
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'  
+
+  BapTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: VPC01-TRA-RT
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'
+
+  SandboxTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: VPC01-SANDBOX-TGA-RT
+      - Key: BillingIdentifier
+        Value: '000'
+      - Key: BusinessService
+        Value: 'Firewalls'
+      - Key: ProjectIdentifer
+        Value: 'BAU'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'LiquidIT'        
+
+  TgwRTAssociation:
+    Type: AWS::EC2::TransitGatewayRouteTableAssociation
+    Properties:
+      TransitGatewayAttachmentId: !Ref TgwAttachment
+      TransitGatewayRouteTableId: !Ref TgwRT
+      
+
+Outputs:
+  FwVPCId:
+    Description: VPC ID of the Network Firewall VPC
+    Value: !Ref VPC
+    Export:
+      Name: FwVPCId
+  TransitGWid:
+    Description: Transitgateway ID
+    Value: !Ref SSTransitGateway
+    Export:
+      Name: Network-Firewall-TGWId
+  ExternalRouteTable:
+    Description: Route table for external Subnet
+    Value: !Ref RouteTableExternal
+    Export:
+      Name: Network-Firewall-RtExternal
+  InternalRouteTableA:
+    Description: Route table for Internal Subnet A
+    Value: !Ref RouteTableAInternal
+    Export:
+      Name: Network-Firewall-RtInternalA
+  InternalRouteTableB:
+    Description: Route table for Internal Subnet B
+    Value: !Ref RouteTableBInternal
+    Export:
+      Name: Network-Firewall-RtInternalB
+  InternalRouteTableC:
+    Description: Route table for Internal Subnet C
+    Value: !Ref RouteTableCInternal
+    Export:
+      Name: Network-Firewall-RtInternalC

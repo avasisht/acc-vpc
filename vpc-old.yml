@@ -1,0 +1,464 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Template to create new Beachhead VPC, Subnets, Route Tables, Internet Gateway, Network ACL, Virtual private gateway,TransitGateway & Routetables configuration similar to the configuration of the existing beachhead account.'
+# This template will create:
+# Create VPC with 3 Subnets - One External or public and two Internal
+# An Internet gateway with route in external subnet
+# 3 Route tables , one for each subnet
+# One NACL associated with all 3 subnets allowing all traffic. Traffic filtering will be implemented at Security Group level
+# One Virtual private Gateway for Direct Connect from Megaport
+# One transit Gateway and 5 Transit Gateway route tables
+# One transit gateway attachment to beachhead vpc and association with Beachhead transit gateway Route table
+
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: '172.25.161.0/24'
+      EnableDnsSupport: true
+      EnableDnsHostnames: false
+      InstanceTenancy: default
+      Tags:
+      - Key: Name
+        Value: 'ACC-AWS-VPC00-BEACHHEAD'
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'      
+            
+
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+      - Key: Name
+        Value: 'AWSVFWVPCIG'
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  VPCGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  ExternalSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      CidrBlock: '172.25.161.64/26'
+      MapPublicIpOnLaunch: false
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWS-ACC-VPC00-FW-External'
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  InternalSubnetA:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      CidrBlock: '172.25.161.0/26'
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWS-ACC-VPC00-FW-Internal'
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  InternalSubnetB:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      CidrBlock: '172.25.161.128/26'
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWSVFWTRA-SNET'
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  RouteTableAInternal:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWSVFWINT-RT'
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  RouteTableBInternal:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWSVRWTRA-RT'
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  RouteTableExternal:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWSVFWEXT-RT'
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  RouteTableAssociationAPrivate:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref InternalSubnetA
+      RouteTableId: !Ref RouteTableAInternal
+
+  RouteTableAssociationBPrivate:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref InternalSubnetB
+      RouteTableId: !Ref RouteTableBInternal
+
+  RouteTableAssociationExternal:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref ExternalSubnet
+      RouteTableId: !Ref RouteTableExternal
+
+  RouteTableExternalInternetRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTableExternal
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+
+  NetworkAclPrivandPub:
+    Type: 'AWS::EC2::NetworkAcl'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'Beachhead-Nacl-Ext-Int'
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  SubnetNAclAssociationExternal:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref ExternalSubnet
+      NetworkAclId: !Ref NetworkAclPrivandPub
+
+  SubnetNAclAssociationInternalA:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref InternalSubnetA
+      NetworkAclId: !Ref NetworkAclPrivandPub
+
+  SubnetNAclAssociationInternalB:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref InternalSubnetB
+      NetworkAclId: !Ref NetworkAclPrivandPub
+
+  NetworkAclEntryInPublicAllowAll:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref NetworkAclPrivandPub
+      RuleNumber: 100
+      Protocol: -1
+      RuleAction: allow
+      Egress: false
+      CidrBlock: '0.0.0.0/0'
+
+  NetworkAclEntryOutPublicAllowAll:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref NetworkAclPrivandPub
+      RuleNumber: 100
+      Protocol: -1
+      RuleAction: allow
+      Egress: true
+      CidrBlock: '0.0.0.0/0'
+
+  MegaportVPG:
+    Type: AWS::EC2::VPNGateway
+    Properties:
+      Type: ipsec.1
+      Tags:
+      - Key: Name
+        Value: 'AWS-MEGAPORT-VPG'
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  VGWGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      VpnGatewayId: !Ref MegaportVPG
+
+  SSTransitGateway:
+    Type: 'AWS::EC2::TransitGateway'
+    Properties:
+      Description: "Transit Gateway in SharedServices Account"
+      AutoAcceptSharedAttachments: 'disable'
+      DefaultRouteTableAssociation: 'disable'
+      DefaultRouteTablePropagation: 'disable'
+      DnsSupport: 'disable'
+      VpnEcmpSupport: 'disable'
+      Tags:
+      - Key: Name
+        Value: AWSVTG1001
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  BeachheadTgwAttachment:
+    Type: AWS::EC2::TransitGatewayAttachment
+    Properties:
+      SubnetIds:
+      - !Ref InternalSubnetB
+      TransitGatewayId: !Ref SSTransitGateway
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: AWSVFWTRA-TGA
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  IdsProdTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: AWSVFW-IDS-PROD-TGA-RT
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  BeachheadTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: AWSVFWTRA-RT
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  EmrpocTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: AWS-ACC-EMRPOC-VFWTRASNET-RT
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  NfLoadTestTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: AWS-ACC-NF-VFWTRASNET-RT
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'  
+
+  BapTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: AWS-ACC-VPC0-TRA-RT
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'
+
+  SandboxTgwRT:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref SSTransitGateway
+      Tags:
+      - Key: Name
+        Value: AWS-ACC-SANDBOX-TGA-RT
+      - Key: BillingIdentifier
+        Value: '123'
+      - Key: BusinessService
+        Value: 'Beachhead'
+      - Key: ProjectIdentifer
+        Value: 'XYZ'
+      - Key: ResourceEndDate
+        Value: 'N/A'
+      - Key: SupportIdentifier
+        Value: 'Datacom'        
+
+  BeachheadTgwRTAssociation:
+    Type: AWS::EC2::TransitGatewayRouteTableAssociation
+    Properties:
+      TransitGatewayAttachmentId: !Ref BeachheadTgwAttachment
+      TransitGatewayRouteTableId: !Ref BeachheadTgwRT
+      
+
+Outputs:
+  BeachheadVPCId:
+    Description: VPC ID of the Beachhead VPC
+    Value: !Ref VPC
+    Export:
+      Name: BeachheadVPCId
+  TransitGWid:
+    Description: Transitgateway ID
+    Value: !Ref SSTransitGateway
+    Export:
+      Name: Beachhead-TGWId
+  ExternalRouteTable:
+    Description: Route table for external Subnet
+    Value: !Ref RouteTableExternal
+    Export:
+      Name: Beachhead-RtExternal
+  InternalRouteTableA:
+    Description: Route table for Internal Subnet A
+    Value: !Ref RouteTableAInternal
+    Export:
+      Name: Beachhead-RtInternalA
+  InternalRouteTableB:
+    Description: Route table for Internal Subnet B
+    Value: !Ref RouteTableBInternal
+    Export:
+      Name: Beachhead-RtInternalB
