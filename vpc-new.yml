@@ -452,8 +452,8 @@ Resources:
                 - 'iam:GetPolicyVersion'
                 - 'iam:GetRolePolicy'
               Resource:
-                - !Sub 'arn:aws:iam:*:${AWS::AccountId}:policy/*'
-                - !Sub 'arn:aws:iam:*:${AWS::AccountId}:role/*'
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/*'
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
 
   VpnVPG:
     Type: AWS::EC2::VPNGateway
