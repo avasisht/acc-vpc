@@ -100,7 +100,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [2, !GetAZs '']
-      CidrBlock: '172.25.161.48/28'
+      CidrBlock: '172.25.242.48/28'
       VpcId: !Ref VPC
       Tags:
       - Key: Name
@@ -120,7 +120,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [2, !GetAZs '']
-      CidrBlock: '172.25.161.16/28'
+      CidrBlock: '172.25.242.16/28'
       VpcId: !Ref VPC
       Tags:
       - Key: Name
@@ -306,7 +306,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
         GroupDescription: Liquid IT Palo Alto firewall mgmt
-        GroupName: sg-PA-Mgmt
+        GroupName: PA-Mgmt
         VpcId:
           Ref: VPC
         SecurityGroupIngress:
@@ -324,7 +324,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
         GroupDescription: Liquid IT Palo Alto firewall HA2
-        GroupName: sg-PA-HA2
+        GroupName: PA-HA2
         VpcId:
           Ref: VPC
         SecurityGroupIngress:
@@ -338,7 +338,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
         GroupDescription: Liquid IT Palo Alto firewall Eth1/2
-        GroupName: sg-PA-Untrust
+        GroupName: PA-Untrust
         VpcId:
           Ref: VPC
         SecurityGroupEgress:
@@ -349,7 +349,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
         GroupDescription: Liquid IT Palo Alto firewall Eth1/3
-        GroupName: sg-PA-Trust
+        GroupName: PA-Trust
         VpcId:
           Ref: VPC
         SecurityGroupIngress:
