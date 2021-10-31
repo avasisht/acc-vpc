@@ -449,6 +449,13 @@ Resources:
                 - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/*'
                 - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
 
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles: 
+        - !Ref IAMRole
+
   VpnVPG:
     Type: AWS::EC2::VPNGateway
     Properties:
