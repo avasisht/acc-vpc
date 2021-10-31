@@ -403,6 +403,58 @@ Resources:
         - !Ref SecurityGroupEth3
         SubnetId: !Ref InternalSubnetB
 
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+         -
+          Effect: "Allow"
+          Principal:
+            Service:
+              - "ec2.amazonaws.com"
+              - "iam.amazonaws.com"
+          Action:
+            - "sts:AssumeRole"
+      ManagedPolicyArns: # AWS managed policies
+       - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+       - "arn:aws:iam::aws:policy/AmazonConnect_FullAccess"
+       - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+       - "arn:aws:iam::aws:policy/IAMFullAccess"
+      Policies:
+        - PolicyName: palo-alto-ec2-access
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Rules which allow Lambda execution role to provide access to the Secrets Manager secrets
+                - 'ec2:DescribeInstances'
+                - 'ec2:DescribeNetworkInterfaces'
+                - 'ec2:DescribeRouteTables'
+                - 'ec2:AssignPrivateIpAddresses'
+                - 'ec2:AssociateAddress'
+                - 'ec2:AttachNetworkInterface'
+                - 'ec2:DetachNetworkInterface'
+                - 'ec2:ReplaceRoute'
+                - 'ec2:UnassignPrivateIpAddresses'
+              Resource:
+                - !Sub 'arn:aws:ec2:*:${AWS::AccountId}:network-interface/*'
+                - !Sub 'arn:aws:ec2:*:${AWS::AccountId}:route-table/*'
+        - PolicyName: palo-alto-iam-access
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                - 'iam:ListAttachedRolePolicies'
+                - 'iam:ListRolePolicies'
+                - 'iam:GetPolicy'
+                - 'iam:GetPolicyVersion'
+                - 'iam:GetRolePolicy'
+              Resource:
+                - !Sub 'arn:aws:iam:*:${AWS::AccountId}:policy/*'
+                - !Sub 'arn:aws:iam:*:${AWS::AccountId}:role/*'
+
   VpnVPG:
     Type: AWS::EC2::VPNGateway
     Properties:
