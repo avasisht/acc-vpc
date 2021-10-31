@@ -417,18 +417,12 @@ Resources:
               - "iam.amazonaws.com"
           Action:
             - "sts:AssumeRole"
-      ManagedPolicyArns: # AWS managed policies
-       - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-       - "arn:aws:iam::aws:policy/AmazonConnect_FullAccess"
-       - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
-       - "arn:aws:iam::aws:policy/IAMFullAccess"
       Policies:
         - PolicyName: palo-alto-ec2-access
           PolicyDocument:
             Statement:
             - Effect: Allow
               Action:
-                # Rules which allow Lambda execution role to provide access to the Secrets Manager secrets
                 - 'ec2:DescribeInstances'
                 - 'ec2:DescribeNetworkInterfaces'
                 - 'ec2:DescribeRouteTables'
