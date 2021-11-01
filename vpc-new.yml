@@ -315,7 +315,27 @@ Resources:
         - IpProtocol: "-1"
           CidrIp: 180.235.104.21/32
         - IpProtocol: "-1"
-          CidrIp: 13.236.127.21/32    
+          CidrIp: 13.236.127.21/32
+        - IpProtocol: "tcp"
+          FromPort: 28769
+          ToPort: 28769
+          CidrIp: 172.25.242.0/28
+        - IpProtocol: "tcp"
+          FromPort: 28760
+          ToPort: 28760
+          CidrIp: 172.25.242.0/28
+        - IpProtocol: "tcp"
+          FromPort: 28771
+          ToPort: 28771
+          CidrIp: 172.25.242.0/28
+        - IpProtocol: "tcp"
+          FromPort: 28
+          ToPort: 28
+          CidrIp: 172.25.242.0/28
+        - IpProtocol: "icmp"
+          FromPort: 8
+          ToPort: -1
+          CidrIp: 172.25.242.0/28       
         SecurityGroupEgress:
         - IpProtocol: "-1"
           CidrIp: 0.0.0.0/0
@@ -390,18 +410,62 @@ Resources:
         SourceDestCheck: 'true'
         GroupSet: 
         - !Ref SecurityGroupEth2
-        SubnetId: !Ref InternalSubnetA
+        SubnetId: !Ref ExternalSubnet
 
   Eth3ENI:
     Type: AWS::EC2::NetworkInterface
     Properties:
         Tags:
         - Key: Name
-          Value: E2
+          Value: E3
         SourceDestCheck: 'true'
         GroupSet: 
         - !Ref SecurityGroupEth3
-        SubnetId: !Ref InternalSubnetB
+        SubnetId: !Ref InternalSubnetA
+
+  Eth4ENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+        Tags:
+        - Key: Name
+          Value: E4Mgmt
+        SourceDestCheck: 'true'
+        GroupSet: 
+        - !Ref SecurityGroupEth0
+        SubnetId: !Ref ExternalSubnet
+
+  Eth5ENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+        Tags:
+        - Key: Name
+          Value: E5
+        SourceDestCheck: 'true'
+        GroupSet: 
+        - !Ref SecurityGroupEth1
+        SubnetId: !Ref InternalSubnetC
+
+  Eth6ENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+        Tags:
+        - Key: Name
+          Value: E6
+        SourceDestCheck: 'true'
+        GroupSet: 
+        - !Ref SecurityGroupEth2
+        SubnetId: !Ref ExternalSubnet
+
+  Eth7ENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+        Tags:
+        - Key: Name
+          Value: E7
+        SourceDestCheck: 'true'
+        GroupSet: 
+        - !Ref SecurityGroupEth3
+        SubnetId: !Ref InternalSubnetA
 
   IAMRole:
     Type: AWS::IAM::Role
