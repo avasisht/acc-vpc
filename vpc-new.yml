@@ -487,9 +487,6 @@ Resources:
             Statement:
             - Effect: Allow
               Action:
-                - 'ec2:DescribeInstances'
-                - 'ec2:DescribeNetworkInterfaces'
-                - 'ec2:DescribeRouteTables'
                 - 'ec2:AssignPrivateIpAddresses'
                 - 'ec2:AssociateAddress'
                 - 'ec2:AttachNetworkInterface'
@@ -499,6 +496,15 @@ Resources:
               Resource:
                 - !Sub 'arn:aws:ec2:*:${AWS::AccountId}:network-interface/*'
                 - !Sub 'arn:aws:ec2:*:${AWS::AccountId}:route-table/*'
+        - PolicyName: palo-alto-ec2-describe
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                - 'ec2:DescribeInstances'
+                - 'ec2:DescribeNetworkInterfaces'
+                - 'ec2:DescribeRouteTables'
+              Resource: '*'
         - PolicyName: palo-alto-iam-access
           PolicyDocument:
             Statement:
