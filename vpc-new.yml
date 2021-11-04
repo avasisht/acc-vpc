@@ -361,6 +361,23 @@ Resources:
         GroupName: PA-Untrust
         VpcId:
           Ref: VPC
+        SecurityGroupIngress:
+        - IpProtocol: "50"
+          CidrIp: 172.25.240.0/19
+        - IpProtocol: "50"
+          CidrIp: 172.25.192.0/25
+        - IpProtocol: "51"
+          CidrIp: 172.25.240.0/19
+        - IpProtocol: "51"
+          CidrIp: 172.25.192.0/25
+        - IpProtocol: "udp"
+          FromPort: 500
+          ToPort: 500
+          CidrIp: 172.25.240.0/19
+        - IpProtocol: "udp"
+          FromPort: 500
+          ToPort: 500
+          CidrIp: 172.25.192.0/25
         SecurityGroupEgress:
         - IpProtocol: "-1"
           CidrIp: 0.0.0.0/0
