@@ -363,8 +363,12 @@ Resources:
           Ref: VPC
         SecurityGroupIngress:
         - IpProtocol: "icmp"
+          FromPort: 8
+          ToPort: -1
           CidrIp: 172.25.240.0/19
         - IpProtocol: "icmp"
+          FromPort: 8
+          ToPort: -1
           CidrIp: 172.25.192.0/25
         - IpProtocol: "icmpv6"
           CidrIp: 172.25.240.0/19
