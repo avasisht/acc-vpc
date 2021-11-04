@@ -370,10 +370,6 @@ Resources:
           FromPort: 8
           ToPort: -1
           CidrIp: 172.25.192.0/25
-        - IpProtocol: "icmpv6"
-          CidrIp: 172.25.240.0/19
-        - IpProtocol: "icmpv6"
-          CidrIp: 172.25.192.0/25
         - IpProtocol: "50"
           CidrIp: 172.25.240.0/19
         - IpProtocol: "50"
