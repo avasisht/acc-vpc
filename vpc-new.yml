@@ -543,7 +543,16 @@ Resources:
               Resource:
                 - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/*'
                 - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
-
+        - PolicyName: palo-alto-cloudwatch-logs
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                - 'logs:CreateLogGroup'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+                - 'logs:DescribeLogStreams'
+              Resource: 'arn:aws:logs:*:*:*'
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
