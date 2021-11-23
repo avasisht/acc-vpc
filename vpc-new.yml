@@ -240,6 +240,38 @@ Resources:
       DestinationCidrBlock: '0.0.0.0/0'
       GatewayId: !Ref InternetGateway
 
+  RouteTableExternalDC1Route:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTableExternal
+      DestinationCidrBlock: '172.25.240.0/20'
+      GatewayId: !Ref VpnVPG
+
+  RouteTableExternalDC2Route:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTableExternal
+      DestinationCidrBlock: '172.25.192.0/25'
+      GatewayId: !Ref VpnVPG
+
+  RouteTableExternalDC3Route:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTableExternal
+      DestinationCidrBlock: '172.16.96.16/29'
+      GatewayId: !Ref VpnVPG
+
+  RouteTableExternalDC4Route:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTableExternal
+      DestinationCidrBlock: '172.18.96.16/29'
+      GatewayId: !Ref VpnVPG
+
   NetworkAclPrivandPub:
     Type: 'AWS::EC2::NetworkAcl'
     Properties:
